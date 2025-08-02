@@ -20,25 +20,32 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="feed"
         options={{
-          title: "Expo V3",
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          title: "News Feed",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="newspaper-o" color={color} />
+          ),
         }}
       />
 
       <Tabs.Screen
-        name="tab1"
+        name="submit"
         options={{
-          title: "Tab 1",
-          tabBarIcon: ({ color }) => <TabBarIcon name="star-o" color={color} />,
+          title: "Submit News",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="plus-circle" color={color} />
+          ),
         }}
       />
+
       <Tabs.Screen
-        name="tab2"
+        name="index"
         options={{
-          title: "Tab 2",
-          tabBarIcon: ({ color }) => <TabBarIcon name="star-o" color={color} />,
+          title: "About",
+          tabBarIcon: ({ color }) => (
+            <TabBarIcon name="info-circle" color={color} />
+          ),
         }}
       />
     </Tabs>
