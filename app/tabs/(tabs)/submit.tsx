@@ -13,11 +13,24 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Input, InputField } from "@/components/ui/input";
 import { FormControl } from "@/components/ui/form-control";
-import { Select, SelectItem } from "@/components/ui/select";
+import { 
+  Select, 
+  SelectTrigger, 
+  SelectInput, 
+  SelectIcon, 
+  SelectPortal, 
+  SelectBackdrop, 
+  SelectContent, 
+  SelectDragIndicator, 
+  SelectDragIndicatorWrapper, 
+  SelectItem, 
+  SelectScrollView 
+} from "@/components/ui/select";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import { Image } from "@/components/ui/image";
 import { Pressable } from "@/components/ui/pressable";
 import { Spinner } from "@/components/ui/spinner";
+import { ChevronDownIcon } from "@/components/ui/icon";
 
 import {
   NEWS_CATEGORIES,
@@ -307,13 +320,29 @@ export default function SubmitNewsScreen() {
               control={control}
               render={({ field: { onChange, value } }) => (
                 <Select selectedValue={value} onValueChange={onChange}>
-                  {NEWS_CATEGORIES.map((category) => (
-                    <SelectItem
-                      key={category}
-                      label={category}
-                      value={category}
-                    />
-                  ))}
+                  <SelectTrigger>
+                    <SelectInput placeholder="Select category" />
+                    <SelectIcon>
+                      <ChevronDownIcon />
+                    </SelectIcon>
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
+                    <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      <SelectScrollView>
+                        {NEWS_CATEGORIES.map((category) => (
+                          <SelectItem
+                            key={category}
+                            label={category}
+                            value={category}
+                          />
+                        ))}
+                      </SelectScrollView>
+                    </SelectContent>
+                  </SelectPortal>
                 </Select>
               )}
             />

@@ -9,11 +9,24 @@ import { HStack } from "@/components/ui/hstack";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
-import { Select, SelectItem } from "@/components/ui/select";
+import { 
+  Select, 
+  SelectTrigger, 
+  SelectInput, 
+  SelectIcon, 
+  SelectPortal, 
+  SelectBackdrop, 
+  SelectContent, 
+  SelectDragIndicator, 
+  SelectDragIndicatorWrapper, 
+  SelectItem, 
+  SelectScrollView 
+} from "@/components/ui/select";
 import { Pressable } from "@/components/ui/pressable";
 import { Badge } from "@/components/ui/badge";
 import { Image } from "@/components/ui/image";
 import { Spinner } from "@/components/ui/spinner";
+import { ChevronDownIcon } from "@/components/ui/icon";
 
 import { EditedNews, NEWS_CATEGORIES, NewsFilter } from "@/types/news";
 import { dataService } from "@/services/dataService";
@@ -247,41 +260,73 @@ export default function NewsFeedScreen() {
           {/* Filter Controls */}
           <HStack space="md">
             <Box className="flex-1">
-              <Select
-                selectedValue={filters.city || ""}
-                onValueChange={(value) =>
-                  setFilters((prev) => ({ ...prev, city: value || undefined }))
-                }
-              >
-                <SelectItem label="All Cities" value="" />
-                {/* Get unique cities from news */}
-                {Array.from(new Set(news.map((item) => item.city))).map(
-                  (city) => (
-                    <SelectItem key={city} label={city} value={city} />
-                  )
-                )}
-              </Select>
+                            <Select
+                  selectedValue={filters.city || ""}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({ ...prev, city: value || undefined }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectInput placeholder="All Cities" />
+                    <SelectIcon>
+                      <ChevronDownIcon />
+                    </SelectIcon>
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
+                    <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      <SelectScrollView>
+                        <SelectItem label="All Cities" value="" />
+                        {/* Get unique cities from news */}
+                        {Array.from(new Set(news.map((item) => item.city))).map(
+                          (city) => (
+                            <SelectItem key={city} label={city} value={city} />
+                          )
+                        )}
+                      </SelectScrollView>
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
             </Box>
 
             <Box className="flex-1">
-              <Select
-                selectedValue={filters.category || ""}
-                onValueChange={(value) =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    category: (value as any) || undefined,
-                  }))
-                }
-              >
-                <SelectItem label="All Categories" value="" />
-                {NEWS_CATEGORIES.map((category) => (
-                  <SelectItem
-                    key={category}
-                    label={category}
-                    value={category}
-                  />
-                ))}
-              </Select>
+                            <Select
+                  selectedValue={filters.category || ""}
+                  onValueChange={(value) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      category: (value as any) || undefined,
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectInput placeholder="All Categories" />
+                    <SelectIcon>
+                      <ChevronDownIcon />
+                    </SelectIcon>
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
+                    <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      <SelectScrollView>
+                        <SelectItem label="All Categories" value="" />
+                        {NEWS_CATEGORIES.map((category) => (
+                          <SelectItem
+                            key={category}
+                            label={category}
+                            value={category}
+                          />
+                        ))}
+                      </SelectScrollView>
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
             </Box>
           </HStack>
 
