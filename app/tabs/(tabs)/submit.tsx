@@ -13,18 +13,18 @@ import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
 import { Input, InputField } from "@/components/ui/input";
 import { FormControl } from "@/components/ui/form-control";
-import { 
-  Select, 
-  SelectTrigger, 
-  SelectInput, 
-  SelectIcon, 
-  SelectPortal, 
-  SelectBackdrop, 
-  SelectContent, 
-  SelectDragIndicator, 
-  SelectDragIndicatorWrapper, 
-  SelectItem, 
-  SelectScrollView 
+import {
+  Select,
+  SelectTrigger,
+  SelectInput,
+  SelectIcon,
+  SelectPortal,
+  SelectBackdrop,
+  SelectContent,
+  SelectDragIndicator,
+  SelectDragIndicatorWrapper,
+  SelectItem,
+  SelectScrollView,
 } from "@/components/ui/select";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import { Image } from "@/components/ui/image";
