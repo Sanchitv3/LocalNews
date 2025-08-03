@@ -24,25 +24,34 @@ class OpenAIService {
     }
 
     try {
-      const systemPrompt = `You are an AI news editor for a local news platform. Your job is to:
+      const systemPrompt = `You are an AI news editor for a local news platform. Your job is to validate and edit user-submitted news for local communities.
 
-1. Check if the submitted story is relevant local news (real events, not spam/inappropriate content)
-2. If appropriate, rewrite it into a clean title (max 80 characters) and a brief summary (2-3 sentences, max 200 characters)
-3. If spam, inappropriate, or not newsworthy, provide a brief rejection reason
+VALIDATION CRITERIA:
+1. RELEVANCE CHECK: Must be about LOCAL HAPPENINGS
+   - Accept: Local events, community news, accidents, festivals, business openings, school events, local government, weather events affecting the area
+   - Reject: National/international news, spam, advertisements, personal grievances, non-news content
+
+2. CONTENT SAFETY CHECK: Flag harmful or inappropriate content
+   - Reject: Hate speech, violence, harassment, false information, inappropriate content, commercial advertisements
+
+3. QUALITY CHECK: Must be newsworthy and substantial
+   - Reject: Trivial personal matters, incomplete information, incoherent content
+
+EDITING REQUIREMENTS (only if content passes validation):
+- Create a CONCISE, CLEAR title (max 80 characters)
+- Write a 2-3 sentence summary that captures the key facts
+- Use professional but accessible language
+- Focus on WHO, WHAT, WHEN, WHERE
 
 Respond ONLY with valid JSON in this exact format:
 {
   "isValid": boolean,
   "editedTitle": "string" (only if isValid is true),
-  "editedSummary": "string" (only if isValid is true),
-  "rejectionReason": "string" (only if isValid is false)
+  "editedSummary": "string" (only if isValid is true, must be 2-3 complete sentences),
+  "rejectionReason": "string" (only if isValid is false, explain why it was rejected)
 }
 
-Guidelines:
-- Accept genuine local events, community news, accidents, festivals, etc.
-- Reject spam, advertisements, personal grievances, fake news, inappropriate content
-- Make the language professional but accessible
-- Focus on factual, newsworthy content`;
+CRITICAL: editedSummary must be exactly 2-3 complete sentences, no more, no less.`;
 
       const userPrompt = `Please validate and edit this local news submission:
 
@@ -85,47 +94,123 @@ Category: ${request.category}`;
   ): GPTValidationResponse {
     const { title, description, city, category } = request;
 
-    // Simple mock validation logic
+    // Enhanced mock validation logic
     const lowerTitle = title.toLowerCase();
     const lowerDescription = description.toLowerCase();
+    const fullText = `${lowerTitle} ${lowerDescription}`;
 
-    // Check for spam/inappropriate content
+    // 1. Check for spam/inappropriate content
     const spamKeywords = [
       "buy now",
       "click here",
       "free money",
       "scam",
-      "fake",
+      "fake news",
+      "advertisement",
+      "promote",
+      "sale",
+      "discount",
+      "offer",
     ];
-    const hasSpam = spamKeywords.some(
-      (keyword) =>
-        lowerTitle.includes(keyword) || lowerDescription.includes(keyword)
+    const inappropriateKeywords = [
+      "hate",
+      "violence",
+      "harassment",
+      "explicit",
+    ];
+
+    const hasSpam = spamKeywords.some((keyword) => fullText.includes(keyword));
+    const hasInappropriate = inappropriateKeywords.some((keyword) =>
+      fullText.includes(keyword)
     );
 
     if (hasSpam) {
       return {
         isValid: false,
         rejectionReason:
-          "Content appears to be spam or inappropriate for local news.",
+          "Content appears to be spam or commercial advertisement, not suitable for local news.",
       };
     }
 
-    // Check minimum content length
+    if (hasInappropriate) {
+      return {
+        isValid: false,
+        rejectionReason:
+          "Content contains inappropriate or harmful material that violates our community guidelines.",
+      };
+    }
+
+    // 2. Check for local relevance
+    const nonLocalKeywords = [
+      "national",
+      "international",
+      "worldwide",
+      "global",
+      "federal government",
+      "president",
+      "congress",
+      "senate",
+      "foreign country",
+    ];
+    const hasNonLocal = nonLocalKeywords.some((keyword) =>
+      fullText.includes(keyword)
+    );
+
+    if (hasNonLocal) {
+      return {
+        isValid: false,
+        rejectionReason:
+          "Content appears to be about national/international news rather than local happenings.",
+      };
+    }
+
+    // 3. Check minimum content quality
     if (description.length < 50) {
       return {
         isValid: false,
         rejectionReason:
-          "Description is too short. Please provide more details about the event.",
+          "Description is too short. Please provide more details about the local event.",
       };
     }
 
-    // Mock editing - make it sound more professional
-    const editedTitle =
-      title.length > 80 ? title.substring(0, 77) + "..." : title;
-    const editedSummary =
-      description.length > 200
-        ? description.substring(0, 197) + "..."
-        : description;
+    if (title.length < 10) {
+      return {
+        isValid: false,
+        rejectionReason:
+          "Title is too brief. Please provide a more descriptive title for the news event.",
+      };
+    }
+
+    // 4. Mock editing - create professional title and 2-3 sentence summary
+    let editedTitle = title.trim();
+    if (editedTitle.length > 80) {
+      editedTitle = editedTitle.substring(0, 77) + "...";
+    }
+
+    // Create a 2-3 sentence summary from the description
+    const sentences = description
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 0);
+    let editedSummary: string;
+
+    if (sentences.length >= 2) {
+      // Take first 2-3 sentences and clean them up
+      editedSummary =
+        sentences
+          .slice(0, 3)
+          .map((s) => s.trim())
+          .join(". ") + ".";
+    } else {
+      // Create a professional summary from the description
+      const cleanDesc = description.trim().replace(/\s+/g, " ");
+      if (cleanDesc.length > 150) {
+        editedSummary = cleanDesc.substring(0, 147) + "...";
+      } else {
+        editedSummary = cleanDesc + (cleanDesc.endsWith(".") ? "" : ".");
+      }
+      // Add a second sentence to meet the 2-3 sentence requirement
+      editedSummary += ` This event took place in ${city}.`;
+    }
 
     return {
       isValid: true,
