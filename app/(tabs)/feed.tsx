@@ -30,6 +30,7 @@ import { ChevronDownIcon } from "@/components/ui/icon";
 
 import { EditedNews, NEWS_CATEGORIES, NewsFilter } from "@/types/news";
 import { dataService } from "@/services/dataService";
+import { authService } from "@/services/authService";
 
 interface NewsCardProps {
   news: EditedNews;
@@ -176,6 +177,24 @@ export default function NewsFeedScreen() {
 
   const handleBookmarkPress = async (newsId: string) => {
     try {
+      // Check if user is authenticated
+      if (!authService.isAuthenticated()) {
+        Alert.alert(
+          "Sign In Required",
+          "Please sign in to bookmark articles. Go to the Profile tab to create an account or sign in.",
+          [
+            { text: "Cancel", style: "cancel" },
+            { 
+              text: "Go to Profile", 
+              onPress: () => {
+                // User can manually navigate to Profile tab
+              }
+            }
+          ]
+        );
+        return;
+      }
+
       const newBookmarkStatus = await dataService.toggleBookmark(newsId);
 
       // Update local bookmarks state
@@ -186,7 +205,15 @@ export default function NewsFeedScreen() {
       );
     } catch (error) {
       console.error("Error toggling bookmark:", error);
-      Alert.alert("Error", "Failed to update bookmark. Please try again.");
+      
+      if (error instanceof Error && error.message.includes("authenticated")) {
+        Alert.alert(
+          "Authentication Required", 
+          "Please sign in to bookmark articles."
+        );
+      } else {
+        Alert.alert("Error", "Failed to update bookmark. Please try again.");
+      }
     }
   };
 
@@ -218,7 +245,9 @@ export default function NewsFeedScreen() {
       </Text>
       <Text className="text-center text-gray-400 mb-6">
         {showBookmarksOnly
-          ? "Bookmark some news articles to see them here"
+          ? authService.isAuthenticated()
+            ? "Bookmark some news articles to see them here"
+            : "Sign in to view your bookmarked articles"
           : "Be the first to submit local news!"}
       </Text>
       {(filters.city || filters.category || showBookmarksOnly) && (
@@ -245,17 +274,19 @@ export default function NewsFeedScreen() {
         <VStack space="md">
           <HStack className="justify-between items-center">
             <Heading size="lg">Local News Feed</Heading>
-            <Button
-              size="sm"
-              variant={showBookmarksOnly ? "solid" : "outline"}
-              onPress={() => setShowBookmarksOnly(!showBookmarksOnly)}
-            >
-              <Text
-                className={showBookmarksOnly ? "text-white" : "text-blue-600"}
+            {authService.isAuthenticated() && (
+              <Button
+                size="sm"
+                variant={showBookmarksOnly ? "solid" : "outline"}
+                onPress={() => setShowBookmarksOnly(!showBookmarksOnly)}
               >
-                {showBookmarksOnly ? "⭐ Bookmarks" : "☆ Show Bookmarks"}
-              </Text>
-            </Button>
+                <Text
+                  className={showBookmarksOnly ? "text-white" : "text-blue-600"}
+                >
+                  {showBookmarksOnly ? "⭐ Bookmarks" : "☆ Show Bookmarks"}
+                </Text>
+              </Button>
+            )}
           </HStack>
 
           {/* Filter Controls */}
