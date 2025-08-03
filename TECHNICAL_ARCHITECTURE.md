@@ -1,6 +1,7 @@
 # 🏗️ Technical Architecture - LocalNews
 
 ## 📋 Table of Contents
+
 - [Architecture Overview](#architecture-overview)
 - [Technology Stack](#technology-stack)
 - [Project Structure](#project-structure)
@@ -35,6 +36,7 @@ LocalNews follows a **layered architecture** pattern with clear separation of co
 ```
 
 ### Design Principles
+
 - **Single Responsibility**: Each component/service has one clear purpose
 - **Dependency Injection**: Services are injected where needed
 - **Error Boundaries**: Graceful error handling at all levels
@@ -46,6 +48,7 @@ LocalNews follows a **layered architecture** pattern with clear separation of co
 ## 🛠️ Technology Stack
 
 ### Core Framework
+
 ```typescript
 // React Native with Expo managed workflow
 "expo": "~52.0.25"
@@ -54,6 +57,7 @@ LocalNews follows a **layered architecture** pattern with clear separation of co
 ```
 
 ### UI & Styling
+
 ```typescript
 // Component library and styling
 "@gluestack-ui/*": "^1.0.8"     // UI components
@@ -62,6 +66,7 @@ LocalNews follows a **layered architecture** pattern with clear separation of co
 ```
 
 ### Form Management
+
 ```typescript
 // Form handling and validation
 "react-hook-form": "^7.62.0"    // Form state management
@@ -70,6 +75,7 @@ LocalNews follows a **layered architecture** pattern with clear separation of co
 ```
 
 ### Data & Storage
+
 ```typescript
 // Local storage and state
 "@react-native-async-storage/async-storage": "^2.2.0"
@@ -77,12 +83,14 @@ LocalNews follows a **layered architecture** pattern with clear separation of co
 ```
 
 ### AI Integration
+
 ```typescript
 // OpenAI API integration
 "openai": "^5.11.0"             // Official OpenAI SDK
 ```
 
 ### Development Tools
+
 ```typescript
 // Development and testing
 "typescript": "^5.3.3"          // Type safety
@@ -173,6 +181,7 @@ LocalNews/
 ## 🧩 Component Architecture
 
 ### Screen Components
+
 Each screen follows a consistent structure:
 
 ```typescript
@@ -180,17 +189,17 @@ Each screen follows a consistent structure:
 export default function ScreenName() {
   // 1. State management hooks
   const [localState, setLocalState] = useState();
-  
+
   // 2. Effect hooks for data loading
   useEffect(() => {
     loadData();
   }, []);
-  
+
   // 3. Event handlers
   const handleAction = useCallback(() => {
     // Action logic
   }, [dependencies]);
-  
+
   // 4. Render method with clear structure
   return (
     <Container>
@@ -203,6 +212,7 @@ export default function ScreenName() {
 ```
 
 ### UI Component Hierarchy
+
 ```
 GluestackUIProvider
 ├── SafeAreaView
@@ -235,87 +245,97 @@ GluestackUIProvider
 ## ⚙️ Service Layer
 
 ### OpenAI Service (`openaiService.ts`)
+
 **Purpose**: Handles GPT-4o-mini API communication with intelligent fallback
 
 ```typescript
 class OpenAIService {
   private client: OpenAI | null = null;
-  
+
   // Primary method for content validation
-  async validateAndEditNews(request: GPTValidationRequest): Promise<GPTValidationResponse>
-  
+  async validateAndEditNews(
+    request: GPTValidationRequest
+  ): Promise<GPTValidationResponse>;
+
   // Fallback method when API is unavailable
-  private mockGPTValidation(request: GPTValidationRequest): GPTValidationResponse
-  
+  private mockGPTValidation(
+    request: GPTValidationRequest
+  ): GPTValidationResponse;
+
   // Utility method for phone number masking
-  private maskPhoneNumber(phone: string): string
+  private maskPhoneNumber(phone: string): string;
 }
 ```
 
 **Key Features:**
+
 - Automatic fallback to mock validation
 - Configurable GPT parameters (temperature, max_tokens)
 - Comprehensive error handling
 - Phone number privacy protection
 
 ### Data Service (`dataService.ts`)
+
 **Purpose**: Manages all local data persistence using AsyncStorage
 
 ```typescript
 class DataService {
   // News submission management
-  async saveSubmission(submission: NewsSubmission): Promise<void>
-  async getSubmissions(): Promise<NewsSubmission[]>
-  async updateSubmissionStatus(id: string, status: string): Promise<void>
-  
+  async saveSubmission(submission: NewsSubmission): Promise<void>;
+  async getSubmissions(): Promise<NewsSubmission[]>;
+  async updateSubmissionStatus(id: string, status: string): Promise<void>;
+
   // Published news management
-  async savePublishedNews(news: EditedNews): Promise<void>
-  async getPublishedNews(filter?: NewsFilter): Promise<EditedNews[]>
-  
+  async savePublishedNews(news: EditedNews): Promise<void>;
+  async getPublishedNews(filter?: NewsFilter): Promise<EditedNews[]>;
+
   // Bookmark management
-  async toggleBookmark(newsId: string, userId: string): Promise<void>
-  async getUserBookmarks(userId: string): Promise<string[]>
-  
+  async toggleBookmark(newsId: string, userId: string): Promise<void>;
+  async getUserBookmarks(userId: string): Promise<string[]>;
+
   // Data cleanup and utilities
-  async clearAllData(): Promise<void>
+  async clearAllData(): Promise<void>;
 }
 ```
 
 **Key Features:**
+
 - Atomic operations with error handling
 - Data filtering and searching capabilities
 - User-specific bookmark management
 - Bulk data operations for testing
 
 ### Auth Service (`authService.ts`)
+
 **Purpose**: Simple user authentication and session management
 
 ```typescript
 class AuthService {
   // User authentication
-  async getCurrentUser(): Promise<User | null>
-  async loginUser(credentials: LoginCredentials): Promise<User>
-  async logoutUser(): Promise<void>
-  
+  async getCurrentUser(): Promise<User | null>;
+  async loginUser(credentials: LoginCredentials): Promise<User>;
+  async logoutUser(): Promise<void>;
+
   // Session management
-  async refreshSession(): Promise<void>
-  isAuthenticated(): boolean
+  async refreshSession(): Promise<void>;
+  isAuthenticated(): boolean;
 }
 ```
 
 ### Analytics Service (`analyticsService.ts`)
+
 **Purpose**: Calculates comprehensive statistics and insights
 
 ```typescript
 class AnalyticsService {
   // Core analytics calculation
-  async getNewsAnalytics(): Promise<NewsAnalytics>
-  
+  async getNewsAnalytics(): Promise<NewsAnalytics>;
+
   // Specific metric calculations
-  private calculateCategoryDistribution(news: EditedNews[]): CategoryStats[]
-  private calculateCityDistribution(news: EditedNews[]): CityStats[]
-  private calculateRecentActivity(news: EditedNews[]): ActivityData[]
-  private calculateTrends(news: EditedNews[]): TrendData
+  private calculateCategoryDistribution(news: EditedNews[]): CategoryStats[];
+  private calculateCityDistribution(news: EditedNews[]): CityStats[];
+  private calculateRecentActivity(news: EditedNews[]): ActivityData[];
+  private calculateTrends(news: EditedNews[]): TrendData;
 }
 ```
 
@@ -324,6 +344,7 @@ class AnalyticsService {
 ## 🔄 Data Flow
 
 ### News Submission Flow
+
 ```
 User Input → Form Validation → AI Processing → Data Storage → UI Update
      ↓              ↓              ↓              ↓            ↓
@@ -331,6 +352,7 @@ FormData → ZodSchema → OpenAI API → AsyncStorage → State Update
 ```
 
 **Detailed Steps:**
+
 1. **User Input**: Form data collected with real-time validation
 2. **Client Validation**: Zod schema validates data structure
 3. **AI Processing**: OpenAI GPT-4o-mini validates and edits content
@@ -339,6 +361,7 @@ FormData → ZodSchema → OpenAI API → AsyncStorage → State Update
 6. **Feed Update**: Approved content appears in news feed
 
 ### News Feed Flow
+
 ```
 Screen Focus → Data Loading → Filtering → Rendering → User Interaction
      ↓              ↓           ↓           ↓             ↓
@@ -346,6 +369,7 @@ useFocusEffect → AsyncStorage → Filter Logic → FlatList → Bookmark/Filte
 ```
 
 ### Analytics Flow
+
 ```
 Data Request → Data Aggregation → Calculation → Chart Rendering
      ↓              ↓              ↓              ↓
@@ -357,6 +381,7 @@ Analytics Screen → Multiple Services → Statistical Analysis → Progress Bar
 ## 🔧 State Management
 
 ### Local Component State
+
 Using React's built-in `useState` and `useEffect` for component-specific state:
 
 ```typescript
@@ -369,11 +394,13 @@ const [categoryFilter, setCategoryFilter] = useState<NewsCategory | "">("");
 ```
 
 ### Global State Patterns
+
 - **Service Singletons**: Shared instances across components
 - **Context Providers**: Theme and configuration management
 - **AsyncStorage**: Persistent data across app sessions
 
 ### State Synchronization
+
 ```typescript
 // Example: Data synchronization pattern
 useFocusEffect(
@@ -387,7 +414,7 @@ const loadLatestData = useCallback(async () => {
     setIsLoading(true);
     const [publishedNews, bookmarks] = await Promise.all([
       dataService.getPublishedNews(),
-      dataService.getUserBookmarks(currentUserId)
+      dataService.getUserBookmarks(currentUserId),
     ]);
     setNews(publishedNews);
     setUserBookmarks(bookmarks);
@@ -402,6 +429,7 @@ const loadLatestData = useCallback(async () => {
 ## 🧭 Navigation Structure
 
 ### File-Based Routing (Expo Router)
+
 ```
 app/
 ├── _layout.tsx                 # Root layout with providers
@@ -416,19 +444,30 @@ app/
 ```
 
 ### Tab Navigation Configuration
+
 ```typescript
 // app/(tabs)/_layout.tsx
 export default function TabLayout() {
   return (
     <Tabs screenOptions={{ headerShown: true }}>
-      <Tabs.Screen name="feed" options={{ 
-        title: "News Feed", 
-        tabBarIcon: ({ color }) => <FontAwesome name="newspaper-o" color={color} />
-      }} />
-      <Tabs.Screen name="submit" options={{ 
-        title: "Submit News",
-        tabBarIcon: ({ color }) => <FontAwesome name="plus-circle" color={color} />
-      }} />
+      <Tabs.Screen
+        name="feed"
+        options={{
+          title: "News Feed",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name="newspaper-o" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="submit"
+        options={{
+          title: "Submit News",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome name="plus-circle" color={color} />
+          ),
+        }}
+      />
       {/* ... other tabs */}
     </Tabs>
   );
@@ -440,6 +479,7 @@ export default function TabLayout() {
 ## 🎨 Design Patterns
 
 ### Service Locator Pattern
+
 ```typescript
 // Centralized service access
 export const services = {
@@ -450,42 +490,48 @@ export const services = {
 } as const;
 
 // Usage in components
-import { services } from '@/services';
+import { services } from "@/services";
 const news = await services.data.getPublishedNews();
 ```
 
 ### Observer Pattern (React Hooks)
+
 ```typescript
 // Custom hook for data observation
 function useNewsData() {
   const [news, setNews] = useState<EditedNews[]>([]);
-  
+
   const refreshNews = useCallback(async () => {
     const latestNews = await dataService.getPublishedNews();
     setNews(latestNews);
   }, []);
-  
+
   useEffect(() => {
     refreshNews();
   }, [refreshNews]);
-  
+
   return { news, refreshNews };
 }
 ```
 
 ### Factory Pattern (Component Creation)
+
 ```typescript
 // Dynamic component factory for form fields
-function createFormField(type: 'input' | 'select' | 'textarea', props: any) {
+function createFormField(type: "input" | "select" | "textarea", props: any) {
   switch (type) {
-    case 'input': return <Input {...props} />;
-    case 'select': return <Select {...props} />;
-    case 'textarea': return <Textarea {...props} />;
+    case "input":
+      return <Input {...props} />;
+    case "select":
+      return <Select {...props} />;
+    case "textarea":
+      return <Textarea {...props} />;
   }
 }
 ```
 
 ### Strategy Pattern (Validation)
+
 ```typescript
 // Different validation strategies
 interface ValidationStrategy {
@@ -510,12 +556,14 @@ class OpenAIValidationStrategy implements ValidationStrategy {
 ## ⚡ Performance Optimizations
 
 ### React Optimizations
+
 ```typescript
 // Memoization for expensive calculations
 const filteredNews = useMemo(() => {
-  return news.filter(item => 
-    (!cityFilter || item.city === cityFilter) &&
-    (!categoryFilter || item.category === categoryFilter)
+  return news.filter(
+    (item) =>
+      (!cityFilter || item.city === cityFilter) &&
+      (!categoryFilter || item.category === categoryFilter)
   );
 }, [news, cityFilter, categoryFilter]);
 
@@ -531,6 +579,7 @@ const NewsCard = React.memo(({ news, onBookmarkPress, isBookmarked }) => {
 ```
 
 ### Image Optimization
+
 ```typescript
 // Optimized image handling
 const pickImage = async () => {
@@ -538,12 +587,13 @@ const pickImage = async () => {
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
     aspect: [16, 9],
-    quality: 0.8,  // Compressed for performance
+    quality: 0.8, // Compressed for performance
   });
 };
 ```
 
 ### List Rendering Optimization
+
 ```typescript
 // FlatList optimization
 <FlatList
@@ -559,15 +609,16 @@ const pickImage = async () => {
 ```
 
 ### Async Operation Optimization
+
 ```typescript
 // Parallel data loading
 const loadDashboardData = async () => {
   const [news, bookmarks, analytics] = await Promise.all([
     dataService.getPublishedNews(),
     dataService.getUserBookmarks(userId),
-    analyticsService.getNewsAnalytics()
+    analyticsService.getNewsAnalytics(),
   ]);
-  
+
   // Update state in batch
   setBatchedState({ news, bookmarks, analytics });
 };
@@ -578,6 +629,7 @@ const loadDashboardData = async () => {
 ## 🔐 Error Handling & Resilience
 
 ### Service-Level Error Handling
+
 ```typescript
 class DataService {
   async getPublishedNews(): Promise<EditedNews[]> {
@@ -594,25 +646,23 @@ class DataService {
 ```
 
 ### Component-Level Error Boundaries
+
 ```typescript
 // Error boundary for graceful failure
 const SafeScreen = ({ children }) => {
-  return (
-    <ErrorBoundary fallback={<ErrorFallback />}>
-      {children}
-    </ErrorBoundary>
-  );
+  return <ErrorBoundary fallback={<ErrorFallback />}>{children}</ErrorBoundary>;
 };
 ```
 
 ### Network Resilience
+
 ```typescript
 // OpenAI service with automatic fallback
 async validateAndEditNews(request: GPTValidationRequest) {
   if (USE_MOCK_GPT) {
     return this.mockGPTValidation(request);
   }
-  
+
   try {
     return await this.callOpenAI(request);
   } catch (error) {
@@ -627,16 +677,19 @@ async validateAndEditNews(request: GPTValidationRequest) {
 ## 📊 Code Quality Metrics
 
 ### TypeScript Coverage
+
 - **100% TypeScript**: All files use TypeScript with strict mode
 - **Interface Definitions**: Comprehensive type definitions for all data models
 - **Generic Types**: Reusable generic interfaces where appropriate
 
 ### Component Metrics
+
 - **Average Component Size**: ~150 lines (manageable complexity)
 - **Reusability**: 80% of UI components are reused across screens
 - **Props Interface**: All components have properly typed props
 
 ### Performance Metrics
+
 - **Bundle Size**: Optimized for mobile with code splitting
 - **Memory Usage**: Efficient list rendering and image handling
 - **Load Time**: < 3 seconds for initial app load
