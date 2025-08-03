@@ -1,9 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NewsSubmission, EditedNews, NewsFilter } from "../types/news";
+import { authService } from "./authService";
 
 const SUBMISSIONS_KEY = "news_submissions";
 const PUBLISHED_NEWS_KEY = "published_news";
 const BOOKMARKS_KEY = "bookmarked_news";
+const USER_BOOKMARKS_PREFIX = "user_bookmarks_";
 
 class DataService {
   // News Submissions Management
@@ -92,9 +94,14 @@ class DataService {
     }
   }
 
-  // Bookmark Management
+  // Bookmark Management (User-specific)
   async toggleBookmark(newsId: string): Promise<boolean> {
     try {
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error("User must be authenticated to bookmark news");
+      }
+
       const bookmarks = await this.getBookmarks();
       const isBookmarked = bookmarks.includes(newsId);
 
@@ -106,7 +113,7 @@ class DataService {
       }
 
       await AsyncStorage.setItem(
-        BOOKMARKS_KEY,
+        this.getUserBookmarksKey(currentUser.id),
         JSON.stringify(updatedBookmarks)
       );
       return !isBookmarked; // Return new bookmark status
@@ -118,7 +125,13 @@ class DataService {
 
   async getBookmarks(): Promise<string[]> {
     try {
-      const data = await AsyncStorage.getItem(BOOKMARKS_KEY);
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        // Return empty array if not authenticated
+        return [];
+      }
+
+      const data = await AsyncStorage.getItem(this.getUserBookmarksKey(currentUser.id));
       return data ? JSON.parse(data) : [];
     } catch (error) {
       console.error("Error getting bookmarks:", error);
@@ -135,6 +148,39 @@ class DataService {
       console.error("Error getting bookmarked news:", error);
       return [];
     }
+  }
+
+  // Legacy bookmark methods (for backward compatibility)
+  async getLegacyBookmarks(): Promise<string[]> {
+    try {
+      const data = await AsyncStorage.getItem(BOOKMARKS_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (error) {
+      console.error("Error getting legacy bookmarks:", error);
+      return [];
+    }
+  }
+
+  async migrateLegacyBookmarks(userId: string): Promise<void> {
+    try {
+      const legacyBookmarks = await this.getLegacyBookmarks();
+      if (legacyBookmarks.length > 0) {
+        const userBookmarksKey = this.getUserBookmarksKey(userId);
+        const existingUserBookmarks = await AsyncStorage.getItem(userBookmarksKey);
+        
+        if (!existingUserBookmarks) {
+          await AsyncStorage.setItem(userBookmarksKey, JSON.stringify(legacyBookmarks));
+          // Optionally remove legacy bookmarks after migration
+          // await AsyncStorage.removeItem(BOOKMARKS_KEY);
+        }
+      }
+    } catch (error) {
+      console.error("Error migrating legacy bookmarks:", error);
+    }
+  }
+
+  private getUserBookmarksKey(userId: string): string {
+    return `${USER_BOOKMARKS_PREFIX}${userId}`;
   }
 
   // Utility methods
